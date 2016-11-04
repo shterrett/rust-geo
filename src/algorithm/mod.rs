@@ -14,3 +14,5 @@ pub mod distance;
 pub mod boundingbox;
 /// Simplifies a `LineString`.
 pub mod simplify;
+/// Intersections of set of line segments
+pub mod line_segment_intersections;

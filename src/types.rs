@@ -293,6 +293,65 @@ pub struct MultiPoint<T>(pub Vec<Point<T>>) where T: Float;
 pub struct LineString<T>(pub Vec<Point<T>>) where T: Float;
 
 #[derive(PartialEq, Clone, Debug)]
+pub struct LineSegment<T>
+    where T: Float
+{
+    pub p0: Point<T>,
+    pub p1: Point<T>
+}
+
+impl<T> LineSegment<T>
+    where T:Float
+{
+    /// Creates a line segment.
+    ///
+    /// ```
+    /// use geo::{Point, LineSegment};
+    ///
+    /// let p1 = Point::new(1., 2.);
+    /// let p2 = Point::new(3., 4.);
+    ///
+    /// let line_segment = LineSegment::new(p2.clone(), p1.clone());
+    ///
+    /// assert_eq!(line_segment.p0, p2);
+    /// assert_eq!(line_segment.p1, p1);
+    /// ```
+
+    pub fn new(point_1: Point<T>, point_2: Point<T>) -> Self {
+        LineSegment { p0: point_1, p1: point_2 }
+    }
+
+    pub fn upper(&self) -> &Point<T> {
+        if self.p0.y() >= self.p1.y() {
+            &self.p0
+        } else {
+            &self.p1
+        }
+    }
+    pub fn lower(&self) -> &Point<T> {
+        if self.p0.y() <= self.p1.y() {
+            &self.p0
+        } else {
+            &self.p1
+        }
+    }
+    pub fn left(&self) -> &Point<T> {
+        if self.p0.x() <= self.p1.x() {
+            &self.p0
+        } else {
+            &self.p1
+        }
+    }
+    pub fn right(&self) -> &Point<T> {
+        if self.p0.x() >= self.p1.x() {
+            &self.p0
+        } else {
+            &self.p1
+        }
+    }
+}
+
+#[derive(PartialEq, Clone, Debug)]
 pub struct MultiLineString<T>(pub Vec<LineString<T>>) where T: Float;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -335,6 +394,7 @@ pub enum Geometry<T>
     where T: Float
 {
     Point(Point<T>),
+    LineSegment(LineSegment<T>),
     LineString(LineString<T>),
     Polygon(Polygon<T>),
     MultiPoint(MultiPoint<T>),
@@ -372,5 +432,18 @@ mod test {
 
         assert_eq!(p.exterior, exterior);
         assert_eq!(p.interiors, interiors);
+    }
+
+    #[test]
+    fn line_segment_returns_extreme_ends() {
+        let p1 = Point::new(1., 5.);
+        let p2 = Point::new(3., 7.);
+
+        let line_segment = LineSegment::new(p1.clone(), p2.clone());
+
+        assert_eq!(line_segment.upper(), &p2);
+        assert_eq!(line_segment.lower(), &p1);
+        assert_eq!(line_segment.left(), &p1);
+        assert_eq!(line_segment.right(), &p2);
     }
 }
